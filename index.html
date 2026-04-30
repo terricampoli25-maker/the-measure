@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Measure</title>
+<meta name="theme-color" content="#0d0a07">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The Measure">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pewter-light: #c8c8c8;
+    --pewter-mid: #9a9a9a;
+    --pewter-dark: #6b6b6b;
+    --pewter-deep: #4a4a4a;
+    --pewter-shadow: #2a2a2a;
+    --gold-accent: #b8960c;
+    --gold-light: #d4af37;
+    --cream: #f5f0e8;
+    --ink: #1a1410;
+    --amber-glow: rgba(255, 180, 60, 0.15);
+    --candle: #ff9a3c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #0d0a07;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Crimson Text', serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Library background */
+  .library-bg {
+    position: fixed;
+    inset: 0;
+    background-image: url('library.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+
+  /* Dark overlay — subtle, preserves firelight */
+  .shelves {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  /* Candle flicker left */
+  .candle-left, .candle-right {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    z-index: 0;
+    animation: flicker 3s ease-in-out infinite alternate;
+  }
+  .candle-left {
+    left: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, rgba(255,150,50,0.18) 0%, transparent 70%);
+  }
+  .candle-right {
+    right: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, rgba(255,150,50,0.18) 0%, transparent 70%);
+    animation-delay: 1.5s;
+  }
+
+  @keyframes flicker {
+    0% { opacity: 0.7; transform: translateY(-50%) scale(1); }
+    33% { opacity: 1; transform: translateY(-50%) scale(1.05); }
+    66% { opacity: 0.8; transform: translateY(-50%) scale(0.98); }
+    100% { opacity: 0.9; transform: translateY(-50%) scale(1.03); }
+  }
+
+  /* Main container */
+  .app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 2rem;
+  }
+
+  /* Title */
+  .title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.4em;
+    color: var(--pewter-mid);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+
+  /* Pendant SVG wrapper */
+  .pendant-assembly {
+    position: relative;
+    z-index: 3;
+    margin-bottom: -6px;
+    display: block;
+  }
+
+  /* Watch outer case */
+  .watch-outer {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: 
+      radial-gradient(circle at 35% 30%, var(--pewter-light) 0%, var(--pewter-mid) 25%, var(--pewter-dark) 55%, var(--pewter-deep) 80%, var(--pewter-shadow) 100%);
+    box-shadow:
+      0 0 0 3px var(--pewter-shadow),
+      0 0 0 5px var(--pewter-deep),
+      0 20px 60px rgba(0,0,0,0.8),
+      0 5px 20px rgba(0,0,0,0.6),
+      inset 0 2px 4px rgba(200,200,200,0.3),
+      inset 0 -2px 4px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .watch-outer:hover {
+    transform: scale(1.01);
+  }
+
+  /* Decorative outer ring engravings */
+  .watch-outer::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(180,180,180,0.2);
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+  }
+
+  .watch-outer::after {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    border: 0.5px solid rgba(150,150,150,0.15);
+  }
+
+  /* Watch face */
+  .watch-face {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    background: 
+      radial-gradient(circle at 40% 35%, #faf7f0 0%, #f0ead8 40%, #e8e0c8 70%, #d8d0b8 100%);
+    box-shadow:
+      inset 0 2px 8px rgba(0,0,0,0.3),
+      inset 0 -1px 4px rgba(255,255,255,0.6),
+      0 0 0 1px rgba(100,80,40,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Face texture */
+  .watch-face::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.06) 100%);
+  }
+
+  /* SVG clock face */
+  .clock-svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Center display */
+  .time-display {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+  }
+
+  .time-text {
+    font-family: 'Cinzel', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a1410;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+  }
+
+  .mode-label {
+    font-family: 'Crimson Text', serif;
+    font-size: 0.7rem;
+    color: #5a4a30;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 2px;
+    opacity: 0.7;
+  }
+
+  /* Controls frame wrapper */
+  .controls-frame {
+    position: relative;
+    margin-top: 1.5rem;
+    width: 320px;
+  }
+
+  .controls-frame svg.frame-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Controls below watch */
+  .controls {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.5rem 1.75rem;
+    background: rgba(10,8,4,0.72);
+  }
+
+  /* Mode toggle */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--pewter-deep);
+    border-radius: 3px;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    color: var(--pewter-mid);
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .mode-btn.active {
+    background: var(--pewter-deep);
+    color: var(--pewter-light);
+  }
+
+  .mode-btn:hover:not(.active) {
+    background: rgba(100,100,100,0.2);
+  }
+
+  /* Input row */
+  .input-row {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    align-items: center;
+  }
+
+  .time-input {
+    flex: 1;
+    background: rgba(20,15,8,0.8);
+    border: 1px solid var(--pewter-deep);
+    border-radius: 3px;
+    padding: 0.5rem 0.75rem;
+    color: var(--pewter-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .time-input:focus {
+    border-color: var(--pewter-mid);
+  }
+
+  .time-input::placeholder {
+    color: var(--pewter-deep);
+    font-size: 0.75rem;
+  }
+
+  /* Action buttons */
+  .btn-row {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 0.6rem;
+    border: 1px solid var(--pewter-deep);
+    border-radius: 3px;
+    background: rgba(20,15,8,0.6);
+    color: var(--pewter-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover {
+    background: var(--pewter-deep);
+    border-color: var(--pewter-mid);
+  }
+
+  .btn.primary {
+    background: var(--pewter-deep);
+    border-color: var(--pewter-mid);
+    color: var(--cream);
+  }
+
+  .btn.primary:hover {
+    background: var(--pewter-dark);
+  }
+
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* Status message */
+  .status {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--pewter-mid);
+    text-align: center;
+    min-height: 1.2em;
+    opacity: 0.8;
+  }
+
+  /* Stripe placeholder */
+  .purchase-btn {
+    display: none; /* FEATURE FLAG: purchase = false */
+  }
+
+  /* Finished overlay */
+  .finished-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .finished-overlay.show {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .finished-text {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    color: var(--cream);
+    letter-spacing: 0.3em;
+    text-align: center;
+  }
+
+  .finished-sub {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--pewter-mid);
+    letter-spacing: 0.1em;
+  }
+
+  .dismiss-btn {
+    padding: 0.6rem 2rem;
+    border: 1px solid var(--pewter-mid);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--pewter-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dismiss-btn:hover {
+    background: var(--pewter-deep);
+  }
+
+  /* Hand animations */
+  .hand {
+    transform-origin: 50% 100%;
+    transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44);
+  }
+
+  .hand-smooth {
+    transform-origin: 50% 100%;
+    transition: transform 1s linear;
+  }
+</style>
+</head>
+<body>
+
+<div class="library-bg"></div>
+<div class="shelves"></div>
+
+<div class="finished-overlay" id="finishedOverlay">
+  <div class="finished-text">The Measure is Complete</div>
+  <button class="dismiss-btn" onclick="dismissFinished()">Dismiss</button>
+</div>
+
+<div class="app">
+  <div class="title">The Measure</div>
+
+  <!-- Pendant assembly: bow + ribbed crown + lug plate, all integrated -->
+  <svg class="pendant-assembly" width="60" height="52" viewBox="0 0 60 52" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="pewterH" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2a2a2a"/>
+        <stop offset="30%" stop-color="#9a9a9a"/>
+        <stop offset="50%" stop-color="#c8c8c8"/>
+        <stop offset="70%" stop-color="#9a9a9a"/>
+        <stop offset="100%" stop-color="#2a2a2a"/>
+      </linearGradient>
+      <linearGradient id="pewterV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#c8c8c8"/>
+        <stop offset="40%" stop-color="#9a9a9a"/>
+        <stop offset="100%" stop-color="#4a4a4a"/>
+      </linearGradient>
+      <linearGradient id="bowGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b0b0b0"/>
+        <stop offset="50%" stop-color="#6b6b6b"/>
+        <stop offset="100%" stop-color="#3a3a3a"/>
+      </linearGradient>
+    </defs>
+    <!-- Lug plate — flat rectangular piece on top of case -->
+    <rect x="22" y="38" width="16" height="14" rx="2" fill="url(#pewterV)" stroke="#2a2a2a" stroke-width="0.5"/>
+    <!-- Lug plate highlight -->
+    <rect x="23" y="39" width="6" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
+    <!-- Ribbed crown/winding knob — sits in front of lug plate -->
+    <rect x="25" y="28" width="10" height="18" rx="4" fill="url(#pewterH)" stroke="#1a1a1a" stroke-width="0.5"/>
+    <!-- Ribs on crown -->
+    <line x1="25" y1="31" x2="35" y2="31" stroke="#1a1a1a" stroke-width="0.8" opacity="0.6"/>
+    <line x1="25" y1="34" x2="35" y2="34" stroke="#1a1a1a" stroke-width="0.8" opacity="0.6"/>
+    <line x1="25" y1="37" x2="35" y2="37" stroke="#1a1a1a" stroke-width="0.8" opacity="0.6"/>
+    <line x1="25" y1="40" x2="35" y2="40" stroke="#1a1a1a" stroke-width="0.8" opacity="0.6"/>
+    <line x1="25" y1="43" x2="35" y2="43" stroke="#1a1a1a" stroke-width="0.8" opacity="0.6"/>
+    <!-- Crown highlight -->
+    <rect x="26" y="29" width="3" height="16" rx="1.5" fill="rgba(255,255,255,0.15)"/>
+    <!-- Bow — oval loop, thicker tubing -->
+    <ellipse cx="30" cy="18" rx="12" ry="15" fill="none" stroke="url(#bowGrad)" stroke-width="5"/>
+    <!-- Bow inner highlight -->
+    <ellipse cx="30" cy="18" rx="12" ry="15" fill="none" stroke="rgba(200,200,200,0.3)" stroke-width="1.5"/>
+    <!-- Bow shadow -->
+    <ellipse cx="30" cy="18" rx="12" ry="15" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1" stroke-dasharray="20 40" stroke-dashoffset="30"/>
+  </svg>
+
+  <div class="watch-outer" id="watchOuter">
+    <!-- Engraved bezel SVG overlay -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="bezelSheen" cx="40%" cy="30%" r="60%">
+          <stop offset="0%" stop-color="rgba(200,200,200,0.15)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0.2)"/>
+        </radialGradient>
+      </defs>
+      <!-- Outer bezel ring base -->
+      <circle cx="140" cy="140" r="138" fill="none" stroke="rgba(80,80,80,0.6)" stroke-width="1"/>
+      <!-- Engraved rope/leaf pattern - repeated dashes mimicking engraving -->
+      <circle cx="140" cy="140" r="132" fill="none" stroke="rgba(180,180,180,0.12)" stroke-width="8"
+        stroke-dasharray="3 4" stroke-linecap="round"/>
+      <!-- Inner engraved line -->
+      <circle cx="140" cy="140" r="126" fill="none" stroke="rgba(100,100,100,0.3)" stroke-width="1"/>
+      <circle cx="140" cy="140" r="124" fill="none" stroke="rgba(200,200,200,0.1)" stroke-width="0.5"/>
+      <!-- Decorative notches at each hour position -->
+      <g stroke="rgba(180,180,180,0.25)" stroke-width="2">
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(0 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(30 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(60 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(90 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(120 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(150 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(180 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(210 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(240 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(270 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(300 140 140)"/>
+        <line x1="140" y1="4" x2="140" y2="10" transform="rotate(330 140 140)"/>
+      </g>
+      <!-- Sheen overlay -->
+      <circle cx="140" cy="140" r="138" fill="url(#bezelSheen)"/>
+    </svg>
+    <div class="watch-face">
+
+      <svg class="clock-svg" viewBox="0 0 230 230" xmlns="http://www.w3.org/2000/svg">
+        <!-- Outer decorative ring -->
+        <circle cx="115" cy="115" r="108" fill="none" stroke="#8b7a50" stroke-width="0.5" opacity="0.4"/>
+        <circle cx="115" cy="115" r="104" fill="none" stroke="#6b5a30" stroke-width="0.3" opacity="0.3"/>
+
+        <!-- Minute tick marks -->
+        <g stroke="#6b5a30" stroke-width="0.8" opacity="0.5">
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(0 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(6 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(12 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(18 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(24 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(36 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(42 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(48 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(54 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(66 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(72 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(78 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(84 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(96 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(102 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(108 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(114 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(126 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(132 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(138 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(144 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(156 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(162 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(168 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(174 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(186 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(192 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(198 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(204 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(216 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(222 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(228 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(234 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(246 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(252 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(258 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(264 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(276 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(282 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(288 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(294 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(306 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(312 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(318 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(324 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(336 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(342 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(348 115 115)"/>
+          <line x1="115" y1="16" x2="115" y2="22" transform="rotate(354 115 115)"/>
+        </g>
+
+        <!-- Hour tick marks (larger) -->
+        <g stroke="#4a3820" stroke-width="1.5" opacity="0.8">
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(0 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(30 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(60 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(90 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(120 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(150 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(180 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(210 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(240 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(270 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(300 115 115)"/>
+          <line x1="115" y1="14" x2="115" y2="26" transform="rotate(330 115 115)"/>
+        </g>
+
+        <!-- Roman numerals -->
+        <g font-family="Cinzel, serif" font-size="11" fill="#2a1f10" text-anchor="middle" dominant-baseline="middle" font-weight="600">
+          <text x="115" y="32">XII</text>
+          <text x="169" y="47">I</text>
+          <text x="198" y="76">II</text>
+          <text x="210" y="115">III</text>
+          <text x="198" y="154">IV</text>
+          <text x="169" y="183">V</text>
+          <text x="115" y="198">VI</text>
+          <text x="61" y="183">VII</text>
+          <text x="32" y="154">VIII</text>
+          <text x="20" y="115">IX</text>
+          <text x="32" y="76">X</text>
+          <text x="61" y="47">XI</text>
+        </g>
+
+        <!-- Decorative inner ring -->
+        <circle cx="115" cy="115" r="55" fill="none" stroke="#8b7a50" stroke-width="0.5" opacity="0.3"/>
+
+        <!-- Minute hand -->
+        <g id="minuteHand" class="hand-smooth" style="transform-origin: 115px 115px; transform: rotate(0deg);">
+          <polygon points="115,38 112,115 115,120 118,115" fill="#2a1f10" opacity="0.9"/>
+          <polygon points="115,38 114,115 115,118 116,115" fill="#4a3820"/>
+        </g>
+
+        <!-- Hour hand -->
+        <g id="hourHand" class="hand-smooth" style="transform-origin: 115px 115px; transform: rotate(0deg);">
+          <polygon points="115,58 111,115 115,122 119,115" fill="#1a1008" opacity="0.95"/>
+          <polygon points="115,58 113,115 115,119 117,115" fill="#3a2810"/>
+        </g>
+
+        <!-- Second hand -->
+        <g id="secondHand" class="hand-smooth" style="transform-origin: 115px 115px; transform: rotate(0deg);">
+          <line x1="115" y1="30" x2="115" y2="130" stroke="#8b1a1a" stroke-width="1" opacity="0.9"/>
+          <line x1="115" y1="120" x2="115" y2="135" stroke="#8b1a1a" stroke-width="2" opacity="0.9"/>
+        </g>
+
+        <!-- Center cap -->
+        <circle cx="115" cy="115" r="5" fill="#2a1f10"/>
+        <circle cx="115" cy="115" r="3" fill="#8b7a50"/>
+        <circle cx="115" cy="115" r="1.5" fill="#d4af37"/>
+      </svg>
+
+      <!-- Digital time display in center -->
+      <div class="time-display">
+        <div class="time-text" id="timeDisplay">00:00:00</div>
+        <div class="mode-label" id="modeLabel">ready</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="controls-frame">
+    <!-- Ornate picture frame SVG border -->
+    <svg class="frame-svg" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="frameGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#7a6a3a"/>
+          <stop offset="30%" stop-color="#9a8a4a"/>
+          <stop offset="50%" stop-color="#6b5a2a"/>
+          <stop offset="70%" stop-color="#8a7a3a"/>
+          <stop offset="100%" stop-color="#5a4a1a"/>
+        </linearGradient>
+      </defs>
+      <!-- Outer border -->
+      <rect x="2" y="2" width="316" height="216" rx="3" fill="none" stroke="#6b5a2a" stroke-width="1.5" opacity="0.6"/>
+      <!-- Main frame body -->
+      <rect x="6" y="6" width="308" height="208" rx="2" fill="none" stroke="#8a7840" stroke-width="3" opacity="0.5"/>
+      <!-- Inner lip -->
+      <rect x="14" y="14" width="292" height="192" rx="1" fill="none" stroke="#5a4a20" stroke-width="1" opacity="0.7"/>
+      <rect x="16" y="16" width="288" height="188" rx="1" fill="none" stroke="#9a8a50" stroke-width="0.5" opacity="0.4"/>
+
+      <!-- Corner flourishes - top left -->
+      <g opacity="0.55" fill="none" stroke="#8a7840" stroke-width="1.2">
+        <path d="M6,6 Q18,6 20,18"/>
+        <path d="M6,6 Q6,18 18,20"/>
+        <circle cx="12" cy="12" r="4" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+        <path d="M4,14 Q8,10 14,8"/>
+        <path d="M14,4 Q10,8 8,14"/>
+        <!-- Leaf scroll top left -->
+        <path d="M18,8 Q22,6 24,10 Q22,14 18,12 Q16,10 18,8Z" fill="#6b5a2a" opacity="0.7"/>
+        <path d="M8,18 Q6,22 10,24 Q14,22 12,18 Q10,16 8,18Z" fill="#6b5a2a" opacity="0.7"/>
+      </g>
+
+      <!-- Corner flourishes - top right -->
+      <g opacity="0.55" fill="none" stroke="#8a7840" stroke-width="1.2" transform="scale(-1,1) translate(-320,0)">
+        <path d="M6,6 Q18,6 20,18"/>
+        <path d="M6,6 Q6,18 18,20"/>
+        <circle cx="12" cy="12" r="4" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+        <path d="M4,14 Q8,10 14,8"/>
+        <path d="M14,4 Q10,8 8,14"/>
+        <path d="M18,8 Q22,6 24,10 Q22,14 18,12 Q16,10 18,8Z" fill="#6b5a2a" opacity="0.7"/>
+        <path d="M8,18 Q6,22 10,24 Q14,22 12,18 Q10,16 8,18Z" fill="#6b5a2a" opacity="0.7"/>
+      </g>
+
+      <!-- Corner flourishes - bottom left -->
+      <g opacity="0.55" fill="none" stroke="#8a7840" stroke-width="1.2" transform="scale(1,-1) translate(0,-220)">
+        <path d="M6,6 Q18,6 20,18"/>
+        <path d="M6,6 Q6,18 18,20"/>
+        <circle cx="12" cy="12" r="4" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+        <path d="M4,14 Q8,10 14,8"/>
+        <path d="M14,4 Q10,8 8,14"/>
+        <path d="M18,8 Q22,6 24,10 Q22,14 18,12 Q16,10 18,8Z" fill="#6b5a2a" opacity="0.7"/>
+        <path d="M8,18 Q6,22 10,24 Q14,22 12,18 Q10,16 8,18Z" fill="#6b5a2a" opacity="0.7"/>
+      </g>
+
+      <!-- Corner flourishes - bottom right -->
+      <g opacity="0.55" fill="none" stroke="#8a7840" stroke-width="1.2" transform="scale(-1,-1) translate(-320,-220)">
+        <path d="M6,6 Q18,6 20,18"/>
+        <path d="M6,6 Q6,18 18,20"/>
+        <circle cx="12" cy="12" r="4" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+        <path d="M4,14 Q8,10 14,8"/>
+        <path d="M14,4 Q10,8 8,14"/>
+        <path d="M18,8 Q22,6 24,10 Q22,14 18,12 Q16,10 18,8Z" fill="#6b5a2a" opacity="0.7"/>
+        <path d="M8,18 Q6,22 10,24 Q14,22 12,18 Q10,16 8,18Z" fill="#6b5a2a" opacity="0.7"/>
+      </g>
+
+      <!-- Top center ornament -->
+      <g transform="translate(160,8)" opacity="0.5">
+        <ellipse cx="0" cy="0" rx="12" ry="5" fill="none" stroke="#8a7840" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.5" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+      </g>
+      <!-- Bottom center ornament -->
+      <g transform="translate(160,212)" opacity="0.5">
+        <ellipse cx="0" cy="0" rx="12" ry="5" fill="none" stroke="#8a7840" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.5" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+      </g>
+      <!-- Left center ornament -->
+      <g transform="translate(8,110)" opacity="0.5">
+        <ellipse cx="0" cy="0" rx="5" ry="10" fill="none" stroke="#8a7840" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.5" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+      </g>
+      <!-- Right center ornament -->
+      <g transform="translate(312,110)" opacity="0.5">
+        <ellipse cx="0" cy="0" rx="5" ry="10" fill="none" stroke="#8a7840" stroke-width="1"/>
+        <circle cx="0" cy="0" r="2.5" fill="#6b5a2a" stroke="#9a8a50" stroke-width="0.8"/>
+      </g>
+    </svg>
+
+    <div class="controls">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btnCountDown" onclick="setMode('down')">Count Down</button>
+        <button class="mode-btn" id="btnCountUp" onclick="setMode('up')">Count Up</button>
+      </div>
+
+      <div class="input-row" id="inputRow">
+        <input type="text" class="time-input" id="timeInput" placeholder="HH : MM : SS" maxlength="8" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn primary" id="btnStart" onclick="startTimer()">Begin</button>
+        <button class="btn" id="btnPause" onclick="pauseTimer()" disabled>Pause</button>
+        <button class="btn" id="btnReset" onclick="resetTimer()">Reset</button>
+      </div>
+
+      <div class="status" id="statusMsg">Set your measure and begin.</div>
+
+      <!-- FEATURE FLAG: purchase = false — Stripe stub below -->
+      <button class="purchase-btn" id="purchaseBtn">Unlock Full Version</button>
+    </div>
+  </div>
+</div>
+
+<audio id="sndOpen" src="sounds/open.mp3" preload="auto"></audio>
+<audio id="sndStart" src="sounds/start.mp3" preload="auto"></audio>
+<audio id="sndFinish" src="sounds/finish.mp3" preload="auto" loop></audio>
+
+<script>
+const FEATURES = {
+  purchase: false
+};
+
+let mode = 'down';
+let running = false;
+let paused = false;
+let totalSeconds = 0;
+let elapsed = 0;
+let interval = null;
+let finishLoop = null;
+let finishTimeout = null;
+let startTime = null;
+
+
+
+function playSound(id) {
+  const el = document.getElementById(id);
+  if (el) { el.currentTime = 0; el.play().catch(() => {}); }
+}
+
+function stopFinishSound() {
+  const el = document.getElementById('sndFinish');
+  if (el) { el.pause(); el.currentTime = 0; el.loop = false; }
+  clearTimeout(finishTimeout);
+}
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnCountDown').classList.toggle('active', m === 'down');
+  document.getElementById('btnCountUp').classList.toggle('active', m === 'up');
+  document.getElementById('inputRow').style.display = m === 'down' ? 'flex' : 'none';
+  document.getElementById('modeLabel').textContent = m === 'down' ? 'count down' : 'count up';
+  resetTimer();
+}
+
+function parseInput(val) {
+  val = val.replace(/[^0-9]/g, '');
+  if (val.length <= 2) return parseInt(val || '0');
+  if (val.length <= 4) return parseInt(val.slice(0,-2) || '0') * 60 + parseInt(val.slice(-2));
+  const h = parseInt(val.slice(0,-4) || '0');
+  const m = parseInt(val.slice(-4,-2));
+  const s = parseInt(val.slice(-2));
+  return h * 3600 + m * 60 + s;
+}
+
+function formatTime(secs) {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function updateDisplay(secs) {
+  document.getElementById('timeDisplay').textContent = formatTime(secs);
+  updateHands(secs);
+}
+
+function updateHands(secs) {
+  const totalSec = mode === 'down' ? totalSeconds : secs;
+  const cycleS = secs % 60;
+  const cycleM = (secs % 3600) / 60;
+  const cycleH = (secs % 43200) / 3600;
+
+  const sdeg = cycleS * 6;
+  const mdeg = cycleM * 6;
+  const hdeg = cycleH * 30;
+
+  document.getElementById('secondHand').style.transform = `rotate(${sdeg}deg)`;
+  document.getElementById('minuteHand').style.transform = `rotate(${mdeg}deg)`;
+  document.getElementById('hourHand').style.transform = `rotate(${hdeg}deg)`;
+}
+
+function startTimer() {
+  if (paused) {
+    running = true;
+    paused = false;
+    document.getElementById('btnPause').textContent = 'Pause';
+    document.getElementById('modeLabel').textContent = mode === 'down' ? 'counting down' : 'counting up';
+    tick();
+    return;
+  }
+
+  if (mode === 'down') {
+    const input = document.getElementById('timeInput').value;
+    totalSeconds = parseInput(input);
+    if (totalSeconds <= 0) {
+      document.getElementById('statusMsg').textContent = 'Set a time before you begin.';
+      return;
+    }
+    elapsed = 0;
+  } else {
+    elapsed = 0;
+  }
+
+  playSound('sndStart');
+  running = true;
+  paused = false;
+
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnPause').disabled = false;
+  document.getElementById('modeLabel').textContent = mode === 'down' ? 'counting down' : 'counting up';
+  document.getElementById('statusMsg').textContent = 'The measure runs.';
+
+  tick();
+}
+
+function tick() {
+  clearInterval(interval);
+  interval = setInterval(() => {
+    if (!running) return;
+    elapsed++;
+
+    if (mode === 'down') {
+      const remaining = totalSeconds - elapsed;
+      if (remaining <= 0) {
+        updateDisplay(0);
+        finishTimer();
+        return;
+      }
+      updateDisplay(remaining);
+    } else {
+      updateDisplay(elapsed);
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  if (!running) return;
+  if (!paused) {
+    running = false;
+    paused = true;
+    clearInterval(interval);
+    document.getElementById('btnPause').textContent = 'Resume';
+    document.getElementById('modeLabel').textContent = 'paused';
+    document.getElementById('statusMsg').textContent = 'Paused.';
+  } else {
+    startTimer();
+  }
+}
+
+function resetTimer() {
+  running = false;
+  paused = false;
+  elapsed = 0;
+  totalSeconds = 0;
+  clearInterval(interval);
+  stopFinishSound();
+  document.getElementById('timeDisplay').textContent = '00:00:00';
+  document.getElementById('modeLabel').textContent = 'ready';
+  document.getElementById('btnStart').disabled = false;
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('btnPause').textContent = 'Pause';
+  document.getElementById('statusMsg').textContent = 'Set your measure and begin.';
+  document.getElementById('timeInput').value = '';
+  document.getElementById('secondHand').style.transform = 'rotate(0deg)';
+  document.getElementById('minuteHand').style.transform = 'rotate(0deg)';
+  document.getElementById('hourHand').style.transform = 'rotate(0deg)';
+}
+
+function finishTimer() {
+  clearInterval(interval);
+  running = false;
+
+  document.getElementById('finishedOverlay').classList.add('show');
+
+  const snd = document.getElementById('sndFinish');
+  snd.loop = true;
+  snd.currentTime = 0;
+  snd.play().catch(() => {});
+
+  finishTimeout = setTimeout(() => {
+    dismissFinished();
+  }, 120000);
+}
+
+function dismissFinished() {
+  document.getElementById('finishedOverlay').classList.remove('show');
+  stopFinishSound();
+  resetTimer();
+}
+
+// Play open sound on load
+window.addEventListener('load', () => {
+  setTimeout(() => playSound('sndOpen'), 400);
+});
+
+// Format input as HH:MM:SS while typing
+document.getElementById('timeInput').addEventListener('input', function() {
+  let val = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+  let formatted = '';
+  if (val.length > 4) formatted = val.slice(0,2) + ':' + val.slice(2,4) + ':' + val.slice(4);
+  else if (val.length > 2) formatted = val.slice(0,2) + ':' + val.slice(2);
+  else formatted = val;
+  this.value = formatted;
+});
+
+// Click overlay to dismiss
+document.getElementById('finishedOverlay').addEventListener('click', function(e) {
+  if (e.target === this) dismissFinished();
+});
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>

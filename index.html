@@ -379,6 +379,83 @@
     opacity: 0.8;
   }
 
+  /* Activation overlay */
+  .activation-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .activation-overlay.show {
+    display: flex;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .activation-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    border: 1px solid var(--pewter-deep);
+    background: rgba(10,8,4,0.9);
+    width: 300px;
+  }
+
+  .activation-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0.3em;
+    color: var(--pewter-light);
+    text-transform: uppercase;
+  }
+
+  .activation-sub {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--pewter-mid);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .serial-input {
+    width: 100%;
+    background: rgba(20,15,8,0.8);
+    border: 1px solid var(--pewter-deep);
+    border-radius: 3px;
+    padding: 0.6rem 0.75rem;
+    color: var(--pewter-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-align: center;
+    outline: none;
+    text-transform: uppercase;
+  }
+
+  .serial-input:focus {
+    border-color: var(--pewter-mid);
+  }
+
+  .activation-msg {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: var(--pewter-mid);
+    text-align: center;
+    min-height: 1em;
+  }
+
+  .activation-msg.error { color: #c0392b; }
+  .activation-msg.success { color: #7a9a6a; }
+
   /* Stripe placeholder */
   .purchase-btn {
     display: none; /* FEATURE FLAG: purchase = false */
@@ -457,6 +534,16 @@
 
 <div class="library-bg"></div>
 <div class="shelves"></div>
+
+<div class="activation-overlay" id="activationOverlay">
+  <div class="activation-box">
+    <div class="activation-title">The Measure</div>
+    <div class="activation-sub">Enter your serial number to unlock.</div>
+    <input type="text" class="serial-input" id="serialInput" placeholder="MEAS-XXXX-XXXX-XXXX" maxlength="19" />
+    <button class="btn primary" id="activateBtn" onclick="submitActivation()">Activate</button>
+    <div class="activation-msg" id="activationMsg"></div>
+  </div>
+</div>
 
 <div class="finished-overlay" id="finishedOverlay">
   <div class="finished-text">The Measure is Complete</div>
@@ -796,13 +883,15 @@ let mode = 'down';
 let running = false;
 let paused = false;
 let totalSeconds = 0;
-let elapsed = 0;
+let elapsed = 0;       // seconds accumulated before the current run segment
 let interval = null;
-let finishLoop = null;
 let finishTimeout = null;
-let startTime = null;
+let startTime = null;  // Date.now() when current segment started
 
-
+function getElapsed() {
+  if (!running || startTime === null) return elapsed;
+  return elapsed + Math.floor((Date.now() - startTime) / 1000);
+}
 
 function playSound(id) {
   const el = document.getElementById(id);
@@ -865,6 +954,7 @@ function startTimer() {
   if (paused) {
     running = true;
     paused = false;
+    startTime = Date.now();
     document.getElementById('btnPause').textContent = 'Pause';
     document.getElementById('modeLabel').textContent = mode === 'down' ? 'counting down' : 'counting up';
     tick();
@@ -886,6 +976,7 @@ function startTimer() {
   playSound('sndStart');
   running = true;
   paused = false;
+  startTime = Date.now();
 
   document.getElementById('btnStart').disabled = true;
   document.getElementById('btnPause').disabled = false;
@@ -899,10 +990,10 @@ function tick() {
   clearInterval(interval);
   interval = setInterval(() => {
     if (!running) return;
-    elapsed++;
+    const e = getElapsed();
 
     if (mode === 'down') {
-      const remaining = totalSeconds - elapsed;
+      const remaining = totalSeconds - e;
       if (remaining <= 0) {
         updateDisplay(0);
         finishTimer();
@@ -910,16 +1001,18 @@ function tick() {
       }
       updateDisplay(remaining);
     } else {
-      updateDisplay(elapsed);
+      updateDisplay(e);
     }
-  }, 1000);
+  }, 500); // 500ms poll so it never visually lags more than half a second
 }
 
 function pauseTimer() {
   if (!running) return;
   if (!paused) {
+    elapsed = getElapsed(); // snapshot wall-clock elapsed before stopping
     running = false;
     paused = true;
+    startTime = null;
     clearInterval(interval);
     document.getElementById('btnPause').textContent = 'Resume';
     document.getElementById('modeLabel').textContent = 'paused';
@@ -933,6 +1026,7 @@ function resetTimer() {
   running = false;
   paused = false;
   elapsed = 0;
+  startTime = null;
   totalSeconds = 0;
   clearInterval(interval);
   stopFinishSound();
@@ -989,6 +1083,103 @@ document.getElementById('timeInput').addEventListener('input', function() {
 document.getElementById('finishedOverlay').addEventListener('click', function(e) {
   if (e.target === this) dismissFinished();
 });
+
+// Snap display when window comes back into focus after being minimized/hidden
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && running) {
+    const e = getElapsed();
+    if (mode === 'down') {
+      const remaining = totalSeconds - e;
+      if (remaining <= 0) { updateDisplay(0); finishTimer(); return; }
+      updateDisplay(remaining);
+    } else {
+      updateDisplay(e);
+    }
+  }
+});
+
+// ── Activation ────────────────────────────────────────────────────────────────
+
+const PUBLIC_KEY      = 'TV+OXnbNMju7uxntsg0REXk1p0K+3OYOzNwY9v5VYVk=';
+const ACTIVATION_HOST = 'https://serial-activation.terricampoli25.workers.dev';
+const KEY_TOKEN       = 'sa_token';
+const KEY_MACHINE_ID  = 'sa_machine_id';
+const KEY_CHECKIN     = 'sa_last_checkin';
+
+function getMachineId() {
+  let id = localStorage.getItem(KEY_MACHINE_ID);
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem(KEY_MACHINE_ID, id); }
+  return id;
+}
+
+async function getPublicKey() {
+  const bytes = Uint8Array.from(atob(PUBLIC_KEY), c => c.charCodeAt(0));
+  return crypto.subtle.importKey('raw', bytes.buffer, { name: 'Ed25519' }, false, ['verify']);
+}
+
+async function verifyToken(token) {
+  if (!token) return null;
+  const dot = token.indexOf('.');
+  if (dot === -1) return null;
+  let payload;
+  try { payload = JSON.parse(atob(token.slice(0, dot))); } catch { return null; }
+  try {
+    const key = await getPublicKey();
+    const data = new TextEncoder().encode(JSON.stringify(payload));
+    const sig  = Uint8Array.from(atob(token.slice(dot + 1)), c => c.charCodeAt(0));
+    if (!await crypto.subtle.verify('Ed25519', key, sig, data)) return null;
+  } catch { return null; }
+  if (payload.expiresAt && new Date(payload.expiresAt) < new Date()) return null;
+  return payload;
+}
+
+async function checkLicense() {
+  const token = localStorage.getItem(KEY_TOKEN);
+  if (!token) return 'unactivated';
+  const payload = await verifyToken(token);
+  if (payload) return 'active';
+  return 'unactivated';
+}
+
+async function submitActivation() {
+  const serial = document.getElementById('serialInput').value.trim().toUpperCase();
+  const msg    = document.getElementById('activationMsg');
+  const btn    = document.getElementById('activateBtn');
+  if (!serial) { msg.textContent = 'Please enter your serial number.'; msg.className = 'activation-msg error'; return; }
+  btn.disabled = true;
+  msg.textContent = 'Verifying...';
+  msg.className = 'activation-msg';
+  try {
+    const res = await fetch(`${ACTIVATION_HOST}/activate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ serial, machineId: getMachineId() }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error ?? 'Activation failed.');
+    }
+    const { token } = await res.json();
+    localStorage.setItem(KEY_TOKEN, token);
+    localStorage.setItem(KEY_CHECKIN, new Date().toISOString());
+    msg.textContent = 'Activated!';
+    msg.className = 'activation-msg success';
+    setTimeout(() => document.getElementById('activationOverlay').classList.remove('show'), 800);
+  } catch (e) {
+    msg.textContent = e.message;
+    msg.className = 'activation-msg error';
+    btn.disabled = false;
+  }
+}
+
+async function initLicense() {
+  const status = await checkLicense();
+  if (status !== 'active') {
+    document.getElementById('activationOverlay').classList.add('show');
+  }
+}
+
+initLicense();
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

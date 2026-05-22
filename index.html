@@ -1150,17 +1150,23 @@ async function submitActivation() {
   msg.textContent = 'Verifying...';
   msg.className = 'activation-msg';
   try {
-    const res = await fetch(`${ACTIVATION_HOST}/activate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ serial, machineId: getMachineId() }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error ?? 'Activation failed.');
+    let ok, data;
+    if (window.electronAPI) {
+      // Running in Electron — use main process to avoid CORS
+      const result = await window.electronAPI.activate(serial, getMachineId());
+      ok = result.ok;
+      data = result.data;
+    } else {
+      const res = await fetch(`${ACTIVATION_HOST}/activate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ serial, machineId: getMachineId() }),
+      });
+      ok = res.ok;
+      data = await res.json().catch(() => ({}));
     }
-    const { token } = await res.json();
-    localStorage.setItem(KEY_TOKEN, token);
+    if (!ok) throw new Error(data.error ?? 'Activation failed.');
+    localStorage.setItem(KEY_TOKEN, data.token);
     localStorage.setItem(KEY_CHECKIN, new Date().toISOString());
     msg.textContent = 'Activated!';
     msg.className = 'activation-msg success';

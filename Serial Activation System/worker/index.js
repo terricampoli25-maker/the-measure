@@ -20,7 +20,7 @@ function subscriptionExpiry() {
 }
 
 async function signToken(payload, privateKeyBase64) {
-  const keyBytes = Uint8Array.from(atob(privateKeyBase64), c => c.charCodeAt(0));
+  const keyBytes = Uint8Array.from(atob(privateKeyBase64.trim()), c => c.charCodeAt(0));
   const key = await crypto.subtle.importKey(
     'pkcs8', keyBytes.buffer,
     { name: 'Ed25519' },

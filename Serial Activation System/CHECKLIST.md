@@ -1,0 +1,22 @@
+# Serial Activation System Checklist
+
+- [ ] Run `node scripts/generate-keys.js`
+- [ ] Copy public key into `The Measure/index.html` as `PUBLIC_KEY`
+- [ ] Confirm `ACTIVATION_HOST` in `The Measure/index.html` and `The Measure/electron/main.js`
+- [ ] Run `wrangler d1 create serial-activation-db`
+- [ ] Run `wrangler d1 execute serial-activation-db --file=schema.sql`
+- [ ] Run `wrangler secret put SIGNING_PRIVATE_KEY`
+- [ ] Run `wrangler secret put STRIPE_WEBHOOK_SECRET`
+- [ ] Run `wrangler secret put RESEND_API_KEY`
+- [ ] Run `wrangler deploy`
+- [ ] Verify worker URL and endpoints
+- [ ] Insert product row into D1 `products`
+- [ ] Create Stripe product and price
+- [ ] Create checkout session with `metadata.product_code`
+- [ ] Add Stripe webhook to `https://<your-worker>.workers.dev/webhook/stripe`
+- [ ] Test purchase in Stripe test mode
+- [ ] Verify serial is created in D1
+- [ ] Verify email contains serial + download link
+- [ ] Activate the app using the emailed serial
+- [ ] Verify app stores `sa_token` / `sa_machine_id` / `sa_last_checkin`
+- [ ] Update download URL in worker email if needed

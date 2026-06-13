@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS serials (
   stripe_payment_id       TEXT,
   stripe_customer_id      TEXT,
   stripe_subscription_id  TEXT,
-  max_activations         INTEGER NOT NULL DEFAULT 2,
+  max_activations         INTEGER NOT NULL DEFAULT 3,
   is_active               INTEGER NOT NULL DEFAULT 1,
   created_at              TEXT    NOT NULL DEFAULT (datetime('now'))
 );

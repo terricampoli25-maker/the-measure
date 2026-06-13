@@ -35,7 +35,7 @@ async function sendEmail(to, subject, html, env) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+      'Authorization': `Bearer ${env.RESEND_API_KEY.trim()}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ from: env.FROM_EMAIL, to: [to], subject, html }),
@@ -80,7 +80,7 @@ async function parseStripeWebhook(request, secret) {
   }
 
   const signedPayload = `${timestamp}.${body}`;
-  const keyBytes = new TextEncoder().encode(secret);
+  const keyBytes = new TextEncoder().encode(secret.trim());
   const msgBytes = new TextEncoder().encode(signedPayload);
   const cryptoKey = await crypto.subtle.importKey(
     'raw', keyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
@@ -158,6 +158,8 @@ async function handleStripeWebhook(request, env) {
           ? '<p>Your license is active while your subscription is current. You may activate on up to 2 devices.</p>'
           : '<p>This is a lifetime license. You may activate on up to 2 devices.</p>';
 
+        const downloadUrl = 'https://github.com/terricampoli25-maker/the-measure/releases/download/v1.0.0/The%20Measure%20Setup%201.0.0.exe';
+
         await sendEmail(
           email,
           `Your Serial Number — ${product.name}`,
@@ -166,9 +168,11 @@ async function handleStripeWebhook(request, env) {
               <h2>Thank you for your purchase!</h2>
               <p>Your serial number for <strong>${product.name}</strong> is:</p>
               <p style="font-family:monospace;font-size:24px;letter-spacing:4px;background:#f4f4f4;padding:16px;border-radius:6px">${serial}</p>
-              <p>Open the app, click <strong>Activate</strong>, and enter this code.</p>
+              <p><a href="${downloadUrl}" style="display:inline-block;background:#1a1410;color:#f5f0e8;padding:12px 24px;text-decoration:none;border-radius:4px;font-weight:bold">Download The Measure</a></p>
+              <p>Or copy this link: <a href="${downloadUrl}">${downloadUrl}</a></p>
+              <p>Install the app, launch it, and enter your serial number when prompted.</p>
               ${licenseNote}
-              <p style="color:#888;font-size:13px">Keep this email — it's your proof of purchase.</p>
+              <p style="color:#888;font-size:13px">Keep this email — it's your proof of purchase and your download link.</p>
             </div>
           `,
           env,
